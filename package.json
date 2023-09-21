@@ -1,0 +1,29 @@
+{
+  "name": "slc-lnf-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JonathanRainee/SLC-LNF-Backend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "scripts": {
+    "start": "nodemon index.js"
+  },
+  
+  "bugs": {
+    "url": "https://github.com/JonathanRainee/SLC-LNF-Backend/issues"
+  },
+  "homepage": "https://github.com/JonathanRainee/SLC-LNF-Backend#readme",
+  "dependencies": {
+    "express": "^4.18.2",
+    "mysql2": "^3.6.1",
+    "nodemon": "^3.0.1"
+  }
+}
