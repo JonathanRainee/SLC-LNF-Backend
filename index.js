@@ -1,29 +1,49 @@
 const express = require("express")
 const app = express()
+const bodyParser = require('body-parser')
 const {PrismaClient} = require("@prisma/client")
 
 const prisma = new PrismaClient()
 
-app.use(express.json())
+app.use(bodyParser.json())
 
-app.get("/", async(req, res)=>{
+app.use(
+    bodyParser.urlencoded({
+        extended: true,
+    })
+);
+
+app.get("/items", async(req, res)=>{
     const allItem = await prisma.item.findMany()
     res.json(allItem)
 })
 
-app.post("/", async(req, res)=>{
+app.post("/items", async(req, res)=>{
     const item = req.body
-    const name = String(item.name)
-    console.log("hehe");
-    console.log(`${name}`);
     const newItem = await prisma.item.create({ data: {
-        name: String(item.name),
-        type: String(item.type),
-        foundAt: Number(item.foundAt),
-        foundDate: new Date(item.foundDate),
-        description: String(item.description)
-    } })
+            name: item.name,
+            type: item.type,
+            foundAt: item.foundAt,
+            foundDate: new Date(item.foundDate),
+            description: item.description
+        }
+    })
     res.json(newItem)
+})
+
+app.delete("/items", async(req, res)=>{
+    const d = req.body
+    const delItem = await prisma.item.delete({ 
+        where: {
+            id: String(d.id)
+        },
+    })
+
+    res.send(d)
+})
+
+app.put("/items", async(req, res)=>{
+    const item = req.body
 })
 
 app.listen(3001, ()=> console.log(`server running on port ${3001}`))

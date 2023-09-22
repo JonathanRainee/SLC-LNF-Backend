@@ -11,7 +11,7 @@ model Item{
     id          String       @id @default(uuid())
     name        String
     type        String
-    foundAt     Int
+    foundAt     String
     foundDate   DateTime
     description String
     createdAt   DateTime     @default(now())
