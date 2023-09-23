@@ -18,6 +18,107 @@ app.get("/items", async(req, res)=>{
     res.json(allItem)
 })
 
+app.get("/itemSearch", async(req, res)=>{
+    const d = req.body
+    if(d.type == null && d.foundAt == null){
+        const allItem = await prisma.item.findMany({
+            where:{
+                name:{
+                    contains: d.name
+                }
+            }
+        })
+        res.json(allItem)
+    }
+    else if(d.name == null && d.foundAt == null){
+        const allItem = await prisma.item.findMany({
+            where:{
+                type: d.type
+            }
+        })
+        res.json(allItem)
+    }
+    else if(d.name == null && d.type == null){
+        const allItem = await prisma.item.findMany({
+            where:{
+                foundAt: d.foundAt
+            }
+        })
+        res.json(allItem)
+    }
+    else if(d.name != null && d.type != null && d.foundAt == null){
+        const allItem = await prisma.item.findMany({
+            where:{
+                AND:[
+                    {
+                        name:{
+                            contains: d.name
+                        },
+                        type:{
+                            equals: d.type
+                        }
+                    }
+                ]
+            }
+        })
+        res.json(allItem)
+    }
+    else if(d.name != null && d.foundAt != null && d.type == null){
+        const allItem = await prisma.item.findMany({
+            where:{
+                AND:[
+                    {
+                        name:{
+                            contains: d.name
+                        },
+                        foundAt: d.foundAt
+                    }
+                ]
+            }
+        })
+        res.json(allItem)
+    }
+    else if(d.foundAt != null && d.type != null && d.name == null){
+        const allItem = await prisma.item.findMany({
+            where:{
+                AND:[
+                    {
+                        type:{
+                            equals: d.type
+                        },
+                        foundAt: d.foundAt
+                    }
+                ]
+            }
+        })
+        res.json(allItem)
+    }
+    else if(d.name != null && d.type != null && d.foundAt != null){
+        const allItem = await prisma.item.findMany({
+            where: {
+                AND: [
+                    {
+                        name: {
+                            contains: d.name,
+                        },
+                    },
+                    {
+                        type: {
+                            equals: d.type,
+                        },
+                    },
+                    {
+                        foundAt: {
+                            equals: d.foundAt,
+                        },
+                    },
+                ],
+            },
+        });
+        res.json(allItem)
+    }
+})
+
 app.post("/items", async(req, res)=>{
     const item = req.body
     const newItem = await prisma.item.create({ data: {
@@ -43,7 +144,20 @@ app.delete("/items", async(req, res)=>{
 })
 
 app.put("/items", async(req, res)=>{
-    const item = req.body
+    const d = req.body
+    const updateItem = await prisma.item.update({
+        where:{
+            id: String(d.id)
+        },
+        data:{
+            name: d.name,
+            type: d.type,
+            foundAt: d.foundAt,
+            foundDate: new Date(d.foundDate),
+            description: d.description
+        }
+    })
+    res.json(updateItem)
 })
 
 app.listen(3001, ()=> console.log(`server running on port ${3001}`))
