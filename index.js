@@ -2,8 +2,8 @@ const express = require("express")
 const app = express()
 const bodyParser = require('body-parser')
 const {PrismaClient} = require("@prisma/client")
-
 const prisma = new PrismaClient()
+const bcrypt = require('bcrypt')
 
 app.use(bodyParser.json())
 
@@ -11,7 +11,7 @@ app.use(
     bodyParser.urlencoded({
         extended: true,
     })
-);
+)
 
 app.get("/items", async(req, res)=>{
     const allItem = await prisma.item.findMany()
@@ -158,6 +158,26 @@ app.put("/items", async(req, res)=>{
         }
     })
     res.json(updateItem)
+})
+
+app.post("/insertAdmin", async(req, res)=>{
+    const d = req.body
+    let defaultPass = "eSElCeLOseNFaUn777"
+    let bcyptedPass
+
+    bcrypt.hash(defaultPass, 10, async function(err, hashedPassword) {
+        if (err) {
+            console.error('Error hashing password:', err);
+        } else {
+            bcyptedPass = hashedPassword;
+            const newAdmin = await prisma.admin.create({ data: {
+                    username: String(d.username),
+                    password: bcyptedPass
+                }
+            })
+            res.json(newAdmin)
+        }
+    });
 })
 
 app.listen(3001, ()=> console.log(`server running on port ${3001}`))
