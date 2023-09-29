@@ -16,11 +16,12 @@ model Item{
     description String
     createdAt   DateTime     @default(now())
     updatedAt   DateTime     @updatedAt
+    imageLink   String       @default("-")
 }
 
 model Admin{
     id          String       @id @default(uuid())
-    username    String
+    username    String       @unique
     password    String
     createdAt   DateTime     @default(now())
     updatedAt   DateTime     @updatedAt

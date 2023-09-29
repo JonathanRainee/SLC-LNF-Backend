@@ -4,6 +4,7 @@ const bodyParser = require('body-parser')
 const {PrismaClient} = require("@prisma/client")
 const prisma = new PrismaClient()
 const bcrypt = require('bcrypt')
+const cors = require('cors');
 
 app.use(bodyParser.json())
 
@@ -12,6 +13,12 @@ app.use(
         extended: true,
     })
 )
+
+const corsOptions = {
+  origin: 'http://localhost:3000',
+};  
+
+app.use(cors(corsOptions));
 
 app.get("/items", async(req, res)=>{
     const allItem = await prisma.item.findMany()
@@ -160,16 +167,55 @@ app.put("/items", async(req, res)=>{
     res.json(updateItem)
 })
 
+app.get("/getAdmin", async(req, res)=>{
+    const d = req.body
+    console.log(d.username);
+    const admin = await prisma.admin.findUnique({
+        where: {
+            username: d.username,
+        },
+    });
+    res.json(admin)
+})
+
+app.get("/login", async(req, res)=>{
+    const d = req.body
+    const admin = await prisma.admin.findUnique({
+        where: {
+            username: d.username,
+        },
+    });
+
+    if(!admin){
+        return res.status(401).json({message: "User not found"})
+    }
+
+    try {
+        console.log(d.password);
+        console.log(admin.password);
+        const match = await bcrypt.compare(d.password, admin.password)
+        if(match){
+            res.status(200).json({ message: 'Authentication successful' });
+        }else if(!match){
+            res.status(401).json({ message: 'Authentication failed' });
+        }
+    } catch (error) {
+        next(error);
+    }
+})
+
 app.post("/insertAdmin", async(req, res)=>{
     const d = req.body
     let defaultPass = "eSElCeLOseNFaUn777"
     let bcyptedPass
+    const loop = 10
 
-    bcrypt.hash(defaultPass, 10, async function(err, hashedPassword) {
+    bcrypt.hash(defaultPass, loop, async function(err, hashedPassword) {
         if (err) {
             console.error('Error hashing password:', err);
         } else {
             bcyptedPass = hashedPassword;
+            console.log(d.username);
             const newAdmin = await prisma.admin.create({ data: {
                     username: String(d.username),
                     password: bcyptedPass
