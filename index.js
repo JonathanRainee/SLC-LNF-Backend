@@ -5,6 +5,12 @@ const {PrismaClient} = require("@prisma/client")
 const prisma = new PrismaClient()
 const bcrypt = require('bcrypt')
 const cors = require('cors');
+require('dotenv').config
+
+const { upload } = require('./middleware/multer')
+const { getStorage, ref, uploadBytesResumable, getDownloadURL } = require('firebase/storage')
+const { auth } = require('./config/firebase.config')
+const { signInWithEmailAndPassword, createUserWithEmailAndPassword } = require("firebase/auth");
 
 app.use(bodyParser.json())
 
@@ -17,6 +23,20 @@ app.use(
 const corsOptions = {
   origin: 'http://localhost:3000',
 };  
+
+async function uploadImage(file) {
+  const storageFB = getStorage();
+  await signInWithEmailAndPassword(auth, process.env.FIREBASE_USER, process.env.FIREBASE_AUTH)
+  const dateTime = Date.now();
+  const fileName = `images/${dateTime}`
+  const storageRef = ref(storageFB, fileName)
+  const metadata = {
+      contentType: file.type,
+  }
+  await uploadBytesResumable(storageRef, file.buffer, metadata);
+  const downloadURL = await getDownloadURL(storageRef)
+  return downloadURL
+}
 
 app.use(cors(corsOptions));
 
@@ -224,6 +244,23 @@ app.post("/insertAdmin", async(req, res)=>{
             res.json(newAdmin)
         }
     });
+})
+
+app.post('/upload', upload, async (req, res) => {
+    const file = {
+        type: req.file.mimetype,
+        buffer: req.file.buffer
+    }
+    try {
+        const buildImage = uploadImage(file, 'single').then((e)=>{
+          res.send({
+              status: "SUCCESS",
+              link: e
+          })
+        })
+    } catch(err) {
+        console.log(err);
+    }
 })
 
 app.listen(3001, ()=> console.log(`server running on port ${3001}`))
