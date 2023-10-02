@@ -149,12 +149,13 @@ app.get("/itemSearch", async(req, res)=>{
 app.post("/items", async(req, res)=>{
     const item = req.body
     const newItem = await prisma.item.create({ data: {
-            name: item.name,
-            type: item.type,
-            foundAt: item.foundAt,
-            foundDate: new Date(item.foundDate),
-            description: item.description
-        }
+        name: item.name,
+        type: item.type,
+        foundAt: item.foundAt,
+        foundDate: new Date(item.foundDate),
+        description: item.description,
+        imageLink: item.imageLink
+      }
     })
     res.json(newItem)
 })
@@ -252,14 +253,14 @@ app.post('/upload', upload, async (req, res) => {
         buffer: req.file.buffer
     }
     try {
-        const buildImage = uploadImage(file, 'single').then((e)=>{
-          res.send({
-              status: "SUCCESS",
-              link: e
-          })
+      const buildImage = uploadImage(file, 'single').then((e)=>{
+        res.send({
+            status: "SUCCESS",
+            link: e
         })
+      })
     } catch(err) {
-        console.log(err);
+      console.log(err);
     }
 })
 
