@@ -46,104 +46,29 @@ app.get("/items", async(req, res)=>{
 })
 
 app.get("/itemSearch", async(req, res)=>{
-    const d = req.body
-    if(d.type == null && d.foundAt == null){
-        const allItem = await prisma.item.findMany({
-            where:{
-                name:{
-                    contains: d.name
-                }
-            }
-        })
-        res.json(allItem)
-    }
-    else if(d.name == null && d.foundAt == null){
-        const allItem = await prisma.item.findMany({
-            where:{
-                type: d.type
-            }
-        })
-        res.json(allItem)
-    }
-    else if(d.name == null && d.type == null){
-        const allItem = await prisma.item.findMany({
-            where:{
-                foundAt: d.foundAt
-            }
-        })
-        res.json(allItem)
-    }
-    else if(d.name != null && d.type != null && d.foundAt == null){
-        const allItem = await prisma.item.findMany({
-            where:{
-                AND:[
-                    {
-                        name:{
-                            contains: d.name
-                        },
-                        type:{
-                            equals: d.type
-                        }
-                    }
-                ]
-            }
-        })
-        res.json(allItem)
-    }
-    else if(d.name != null && d.foundAt != null && d.type == null){
-        const allItem = await prisma.item.findMany({
-            where:{
-                AND:[
-                    {
-                        name:{
-                            contains: d.name
-                        },
-                        foundAt: d.foundAt
-                    }
-                ]
-            }
-        })
-        res.json(allItem)
-    }
-    else if(d.foundAt != null && d.type != null && d.name == null){
-        const allItem = await prisma.item.findMany({
-            where:{
-                AND:[
-                    {
-                        type:{
-                            equals: d.type
-                        },
-                        foundAt: d.foundAt
-                    }
-                ]
-            }
-        })
-        res.json(allItem)
-    }
-    else if(d.name != null && d.type != null && d.foundAt != null){
-        const allItem = await prisma.item.findMany({
-            where: {
-                AND: [
-                    {
-                        name: {
-                            contains: d.name,
-                        },
-                    },
-                    {
-                        type: {
-                            equals: d.type,
-                        },
-                    },
-                    {
-                        foundAt: {
-                            equals: d.foundAt,
-                        },
-                    },
-                ],
+  const d = req.query
+  const allItem = await prisma.item.findMany({
+    where: {
+        AND: [
+            {
+              name: {
+                  contains: d.name,
+              },
             },
-        });
-        res.json(allItem)
-    }
+            {
+              type: {
+                contains: d.type,
+              },
+            },
+            {
+              foundAt: {
+                contains: d.foundAt,
+              },
+            },
+        ],
+    },
+  });
+  res.json(allItem)
 })
 
 app.post("/items", async(req, res)=>{
