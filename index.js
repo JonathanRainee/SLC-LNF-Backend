@@ -124,8 +124,9 @@ app.get("/getAdmin", async(req, res)=>{
     res.json(admin)
 })
 
-app.get("/login", async(req, res)=>{
+app.post("/login", async(req, res)=>{
     const d = req.body
+    // const d = req.query
     const admin = await prisma.admin.findUnique({
         where: {
             username: d.username,
@@ -133,17 +134,20 @@ app.get("/login", async(req, res)=>{
     });
 
     if(!admin){
-        return res.status(401).json({message: "User not found"})
+      console.log("not found");
+      return res.status(401).json({message: "User not found"})
     }
+    console.log("hehe");
 
     try {
-        console.log(d.password);
-        console.log(admin.password);
         const match = await bcrypt.compare(d.password, admin.password)
         if(match){
-            res.status(200).json({ message: 'Authentication successful' });
+          console.log("same");
+          res.status(200).json({ message: 'Authentication successful' });
+          console.log("kntl");
         }else if(!match){
-            res.status(401).json({ message: 'Authentication failed' });
+          console.log("not same");
+          res.status(401).json({ message: 'Authentication failed' });
         }
     } catch (error) {
         next(error);
