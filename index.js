@@ -108,7 +108,7 @@ app.put("/items", async(req, res)=>{
             foundAt: d.foundAt,
             foundDate: new Date(d.foundDate),
             description: d.description,
-            imageLink: item.imageLink
+            imageLink: d.imageLink
         }
     })
     res.json(updateItem)
@@ -202,6 +202,16 @@ app.get('/getRoom', async(req, res)=>{
     },
   });
   res.json(uniqueRooms)
+})
+
+app.get('/getType', async(req, res)=>{
+  const uniqueTypes = await prisma.item.findMany({
+    distinct: ['type'],
+    select: {
+      type: true,
+    },
+  });
+  res.json(uniqueTypes)
 })
 
 app.listen(3001, ()=> console.log(`server running on port ${3001}`))
