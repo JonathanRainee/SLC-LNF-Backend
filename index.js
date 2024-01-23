@@ -116,7 +116,6 @@ app.put("/items", async(req, res)=>{
 
 app.get("/getAdmin", async(req, res)=>{
     const d = req.body
-    console.log(d.username);
     const admin = await prisma.admin.findUnique({
         where: {
             username: d.username,
@@ -135,19 +134,14 @@ app.post("/login", async(req, res)=>{
     });
 
     if(!admin){
-      console.log("not found");
       return res.status(401).json({message: "User not found"})
     }
-    console.log("hehe");
 
     try {
         const match = await bcrypt.compare(d.password, admin.password)
         if(match){
-          console.log("same");
           res.status(200).json({ message: 'Authentication successful' });
-          console.log("kntl");
         }else if(!match){
-          console.log("not same");
           res.status(401).json({ message: 'Authentication failed' });
         }
     } catch (error) {
@@ -166,7 +160,6 @@ app.post("/insertAdmin", async(req, res)=>{
             console.error('Error hashing password:', err);
         } else {
             bcyptedPass = hashedPassword;
-            console.log(d.username);
             const newAdmin = await prisma.admin.create({ data: {
                     username: String(d.username),
                     password: bcyptedPass
